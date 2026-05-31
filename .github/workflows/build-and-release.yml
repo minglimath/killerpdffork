@@ -24,8 +24,32 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1.3
       
+    - name: Check MSBuild version
+      run: msbuild -version
+      
+    - name: Check .NET Framework
+      run: |
+        $frameworkDirs = @(
+          "$env:WINDIR\Microsoft.NET\Framework64\v4.0.30319",
+          "$env:WINDIR\Microsoft.NET\Framework\v4.0.30319"
+        )
+        foreach ($dir in $frameworkDirs) {
+          if (Test-Path $dir) {
+            Write-Host "Found .NET Framework at: $dir"
+            Get-ChildItem $dir -Filter msbuild.exe | Select-Object FullName
+          }
+        }
+      shell: pwsh
+      
+    - name: List project files
+      run: |
+        Write-Host "Project directory contents:"
+        Get-ChildItem -Recurse -Filter *.csproj | Select-Object FullName
+        Write-Host "KillerPDF.csproj exists: $(Test-Path KillerPDF.csproj)"
+      shell: pwsh
+      
     - name: Build and Publish
-      run: msbuild KillerPDF.csproj /t:Publish /p:PublishProfile=FolderProfile1 /p:Configuration=Release /p:Platform=x64 /m /v:normal
+      run: msbuild KillerPDF.csproj /t:Publish /p:PublishProfile=FolderProfile1 /p:Configuration=Release /p:Platform=x64 /m /v:detailed
       
     - name: Get version
       id: get_version
