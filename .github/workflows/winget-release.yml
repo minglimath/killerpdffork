@@ -6,7 +6,7 @@ on:
 
 jobs:
   submit:
-    runs-on: windows-latest
+    runs-on: windows-2025
     steps:
       - name: Install Komac
         run: winget install --id RussellBanks.Komac --silent --accept-package-agreements --accept-source-agreements
