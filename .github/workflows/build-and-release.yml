@@ -26,6 +26,9 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
       
+    - name: Restore NuGet packages
+      run: nuget restore KillerPDF.csproj
+      
     - name: Check MSBuild version
       run: msbuild -version
       
