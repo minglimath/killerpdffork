@@ -1,0 +1,137 @@
+# Changelog
+
+All notable changes to KillerPDF are documented here.
+
+Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased] — 1.4.1
+
+### Added
+- Page number jump box in toolbar. Type a page number and press Enter to navigate directly to that page.
+- Signature auto-selects after placing so you can immediately reposition or resize without switching tools.
+- Zoom to Width / Fit Page now re-applies when the window is resized.
+- Middle mouse button panning. Hold middle mouse and drag to pan the view in any direction.
+- Multi-page grid view toggle (toolbar button left of the zoom dropdown). Switch between seeing all pages in a scrollable grid and a focused single-page view. Defaults to grid view on open.
+- Ctrl+S saves directly to the current file without a dialog. Ctrl+Shift+S opens Save As.
+- Arrow key navigation: Left/Up goes to the previous page, Right/Down goes to the next page.
+- Keyboard shortcut overlay. Press Ctrl+? to show a full shortcut reference. Dismiss with Escape or by clicking outside the panel.
+- Crop tool improvements: corner drag handles to resize the selection after drawing without having to redraw; Enter applies the crop to the current page; Escape cancels; Remove Crop / Remove All buttons in the confirm bar clear an existing CropBox from one page or all pages.
+
+### Fixed
+- Fit to Width and Fit Page zoomed incorrectly on HiDPI (4K) displays.
+- Pages appeared blurry at higher zoom levels on HiDPI displays.
+- Signature position drifted after saving.
+- Memory spike (6+ GB) when opening large PDFs on HiDPI displays.
+- Navigating pages caused multi-second UI lag on documents with many pages.
+- Scroll wheel now navigates to the previous page when scrolled to the top of a page, and to the next page when scrolled to the bottom.
+
+---
+
+## [1.4.0] - 2026-05-16
+
+### Added
+- Rotate page (Issue #52). Right-click any page in the sidebar to rotate it 90° clockwise or counter-clockwise. Works on multi-page selections.
+- Insert Image tool (Issue #50). Click the toolbar button, then click anywhere on the page to place a PNG, JPG, BMP, GIF, or TIFF as a resizable annotation. Drag the green corner handle to resize; burned into the PDF on save.
+- PDF link annotation support (Issue #47). Clicking hyperlinks and internal cross-references in a PDF now navigates to the target page or opens the URL in the default browser. Works on both the primary page and all secondary pages in multi-page grid view.
+- New Blank Document (Ctrl+N, toolbar button). Creates a single blank A4 page as a new working document. Prompts to discard unsaved changes if a dirty file is open.
+- Typewriter tool font size picker. When the Text tool is active, a settings bar appears showing size presets (8–72pt) and a color palette. Size and color are stored per-annotation and applied when flattening to PDF.
+- Insert Blank Page. Right-clicking any page in the sidebar now shows a context menu with page-level operations: insert a blank A4 page, move up/down, extract, or delete.
+- Signature resize. Placed signatures now show a green drag handle in the bottom-right corner. Dragging it scales the signature proportionally; releasing commits the new size.
+- Multi-page grid view. When viewing a page, subsequent pages render as a tiled grid to the right and below, allowing context across multiple pages at once.
+- Fit to Width on open. Files now auto-zoom to fill the viewer width on open instead of opening at 100% and clipping wide pages.
+
+### Fixed
+- Scroll wheel in the main viewer no longer triggers page navigation. Previously, at low zoom levels where the page fit entirely in the viewport, every scroll tick caused a full page re-render.
+- Page selection no longer flashes centered before jerking left. The layout width is now managed exclusively in the Dispatcher callback, eliminating the double layout pass that caused the visual artifact.
+- "Back to TOC" and other internal links on secondary pages now navigate to the correct target instead of advancing to the next sequential page.
+- Clicking an internal link now scrolls the viewer back to the top of the target page so links pointing to page tops (e.g. TOC back-links) land correctly.
+- Internal PDF links now survive a merge. When merging PDFs, named destinations from the source document's catalog are resolved and rewritten as explicit page-object references in the merged document, so TOC and cross-reference links continue to work after merging.
+- Multi-page grid content is now centered in the viewport instead of left-aligned. Panel width is snapped to a whole number of page-width slots so HorizontalAlignment=Center has room to work.
+- Sidebar page list no longer shows empty space after the last page. The list now ends at the final page entry with no trailing dead zone.
+
+### Changed
+- Theme updated to match killertools.net: accent green changed from `#4ade80` to `#1ea54c`, backgrounds shifted to `#333333`/`#3a3a3a`, sidebar darkened to `#222222`, toolbar and title bar at `#222222`. Film grain overlay added to the main content area. Footer text lightened for readability.
+- Sidebar scroll is now handled by an outer ScrollViewer wrapping the page list, allowing the list to size to its content rather than stretching to fill the panel height.
+
+## [1.3.2] - 2026-05-11
+
+### Fixed
+- Windows Program Compatibility Assistant popup on first launch. Added an app manifest declaring Windows 10/11 compatibility, which suppresses PCA when the app writes to uninstall registry keys.
+- "Set as default PDF viewer" prompt now only appears if KillerPDF is not already the default handler. Previously showed on every install/update regardless.
+- "Set as default PDF viewer" prompt now uses the dark KillerDialog instead of a native Windows message box.
+
+## [1.3.1] - 2026-05-11
+
+### Fixed
+- Print no longer fails with "No application is associated with the specified file for this action" on systems where Edge is the default PDF handler. Printing now uses WPF-native rendering and PrintDialog instead of the shell print verb.
+- Zoom dropdown selected value no longer shows in blue - selection highlight now uses the accent green.
+
+## [1.3.0] - 2026-05-08
+
+### Added
+- Image signatures. Import a PNG, JPG, or BMP as a reusable signature instead of drawing one. Stored alongside drawn signatures and flattens into the PDF on save.
+- Close File (Ctrl+W). Close the current document without quitting the app. Prompts if there are unsaved changes.
+- Unsaved-changes protection. The title bar marks dirty files with `*` and prompts before closing or opening a new file with unsaved edits.
+- Full-document Find. Ctrl+F search now scans the entire PDF and cycles through all matches, not just the current page.
+- Zoom preset dropdown with quick presets (50%, 75%, 100%, 125%, 150%, 200%). Scroll-wheel zoom syncs the box, including non-preset levels.
+
+### Fixed
+- Scrolling past the bottom of a page now advances to the next page; scrolling past the top goes back.
+- Re-dropping a PDF onto the window after a file is already open now works correctly.
+- Owner-password-protected PDFs now open correctly (previously only user-password was handled).
+- Dragging the title bar while maximized now correctly restores and moves the window.
+- Delete confirmation now reads "Delete 1 page?" or "Delete 2 pages?" instead of "Delete N page(s)?".
+- Signature delete button showed a rectangle glyph instead of an X.
+
+### Changed
+- All dialog boxes are now fully dark-themed via a custom dialog window. No more native Windows popups.
+- Create Signature dialog now uses a dark custom chrome title bar with a red X close button.
+- Button hover states and page thumbnail hover in the sidebar are now green instead of the default Windows blue.
+- Toolbar icons overhauled: Open Folder, Close File, Move Up, Move Down, Extract Pages, and Merge PDFs all use cleaner glyphs.
+
+## [1.2.1] - 2026-05-04
+
+### Changed
+- Code signed with Certum certificate. Windows now shows a verified publisher instead of unknown.
+- Cleaned up footer.
+
+## [1.2.0] - 2026-04-24
+
+### Added
+- Self-installing EXE. Running the downloaded binary now shows an Install / Run dialog. Install copies the EXE to `%LOCALAPPDATA%\Programs\KillerPDF\` (no UAC required), creates Start Menu and optional Desktop shortcuts, registers as a PDF file handler, and adds an uninstall entry to Add/Remove Programs. Uninstall self-deletes via a deferred batch file. Running a newer version from outside the install path shows an Update prompt instead.
+- Command-line file argument support so file associations work: `KillerPDF.exe "file.pdf"` opens the file directly.
+- Password-protected PDF support. Opening an encrypted PDF now prompts for the password instead of showing a generic error. The decrypted copy is held in a temp file for the session so all rendering and editing works normally.
+- Save Flattened PDF (photo icon in toolbar). Rasterizes every page at 150 DPI via PDFium and writes them as embedded images into a new PDF, producing a fully uneditable document. Pending annotations are burned in before rasterization.
+
+## [1.1.1] - 2026-04-18
+
+### Fixed
+- Maximize no longer covers the Windows taskbar. Added a `WM_GETMINMAXINFO` hook so the frameless window clamps to the monitor's work area (multi-monitor aware).
+- Two `CS8602` nullability warnings in the font-name cleanup path.
+
+## [1.1.0] - 2026-04-16
+
+### Changed
+- Retargeted from .NET 8 to .NET Framework 4.8 so end users no longer need to install a separate .NET runtime.
+- Forced 64-bit build via `PlatformTarget=x64`.
+- Added PolySharp polyfills for modern C# language features on net48.
+- Replaced `Math.Clamp` calls with `Math.Min`/`Math.Max` equivalents.
+
+### Added
+- Post-publish MSBuild target that automatically bundles a GPL3-compliant source zip alongside the published EXE.
+- CHANGELOG.md.
+
+## [1.0.1]
+
+_Historical entries to be backfilled._
+
+[Unreleased]: https://github.com/SteveTheKiller/KillerPDF/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/SteveTheKiller/KillerPDF/compare/v1.3.2...v1.4.0
+[1.3.2]: https://github.com/SteveTheKiller/KillerPDF/compare/v1.3.1...v1.3.2
+[1.3.1]: https://github.com/SteveTheKiller/KillerPDF/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/SteveTheKiller/KillerPDF/compare/v1.2.1...v1.3.0
+[1.2.1]: https://github.com/SteveTheKiller/KillerPDF/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/SteveTheKiller/KillerPDF/compare/v1.1.1...v1.2.0
+[1.1.1]: https://github.com/SteveTheKiller/KillerPDF/releases/tag/v1.1.1
+[1.1.0]: https://github.com/SteveTheKiller/KillerPDF/releases/tag/v1.1.0
+[1.0.1]: https://github.com/SteveTheKiller/KillerPDF/releases/tag/v1.0.1

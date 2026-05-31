@@ -1,0 +1,84 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.4.1)'
+        required: true
+        default: 'v1.4.1'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.3
+      
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1.3
+      
+    - name: Restore NuGet packages
+      run: nuget restore KillerPDF.csproj
+      
+    - name: Build and Publish
+      run: msbuild KillerPDF.csproj /t:Publish /p:PublishProfile=FolderProfile1 /p:Configuration=Release /p:Platform=x64 /m /v:m
+      
+    - name: Get version
+      id: get_version
+      run: |
+        if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+          echo "version=${{ github.event.inputs.version }}" >> $env:GITHUB_OUTPUT
+        } else {
+          echo "version=${{ github.ref_name }}" >> $env:GITHUB_OUTPUT
+        }
+      shell: pwsh
+      
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.get_version.outputs.version }}
+        name: KillerPDF ${{ steps.get_version.outputs.version }}
+        body: |
+          ## KillerPDF ${{ steps.get_version.outputs.version }}
+          
+          ### Changes
+          - See CHANGELOG.md for detailed changes
+          
+          ### Download
+          - KillerPDF.exe - Standalone executable (includes all dependencies)
+          
+          ### System Requirements
+          - Windows 10/11 x64
+          - .NET Framework 4.8 (usually pre-installed)
+          
+          ### Installation
+          1. Download KillerPDF.exe
+          2. Run the executable
+          3. Optional: Create desktop shortcut
+          
+          ### Verification
+          SHA256: ${{ steps.hash.outputs.sha256 }}
+        files: |
+          bin/Release/net48/publish/KillerPDF.exe
+          bin/Release/net48/publish/*-src.zip
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: KillerPDF-${{ steps.get_version.outputs.version }}
+        path: |
+          bin/Release/net48/publish/KillerPDF.exe
+          bin/Release/net48/publish/*-src.zip
+        retention-days: 30
